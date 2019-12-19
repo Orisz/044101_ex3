@@ -1,0 +1,29 @@
+#!/bin/bash
+echo "#This is the Makefile for the "$2" project" > makefile
+if [ "$1" == "gcc" ];then
+echo "CC = "$1"" >> makefile
+echo "CFLAGS = -g -Wall" >> makefile
+echo "CCLINK = \$(CC)" >> makefile
+echo "LIBS =" >> makefile
+elif [ "$1" == g++ ];then
+echo "CCC = "$1"" >> makefile
+echo "CXXFLAGS = -g -Wall" >> makefile
+echo "CXXLINK = \$(CCC)" >> makefile
+fi
+obj_files=`"$1" -MM *"$3" | cut -f1 -d":" | tr "\n" " "` 
+echo "OBJS = "$obj_files"" >> makefile
+echo "RM = rm -f" >> makefile
+echo "# Creating the executable ("$2")" >> makefile
+echo ""$2": \$(OBJS)" >> makefile
+if [ "$1" == gcc ];then
+echo "	\$(CCLINK) -o "$2" \$(OBJS) \$(LIBS)" >> makefile
+elif [ "$1" == g++ ];then
+echo "	\$(CXXLINK) -o "$2" \$(OBJS)" >> makefile
+fi
+echo >> makefile
+
+echo "# Creating object files using default rules" >> makefile
+"$1" -MM *"$3" >> makefile
+echo "# Cleaning old files before new make" >> makefile
+echo "clean:" >> makefile
+echo "	\$(RM) "$2" *.o *.bak *~ \"#\"* core" >> makefile
